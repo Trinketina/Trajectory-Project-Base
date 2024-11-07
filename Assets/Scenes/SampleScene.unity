@@ -536,6 +536,14 @@ PrefabInstance:
       propertyPath: crosshair
       value: 
       objectReference: {fileID: 527915968}
+    - target: {fileID: 1419309671843462947, guid: d4640e1e6bf409f44bcf4e2ec8faadb1, type: 3}
+      propertyPath: gravity.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1419309671843462947, guid: d4640e1e6bf409f44bcf4e2ec8faadb1, type: 3}
+      propertyPath: gravity.y
+      value: -9.8
+      objectReference: {fileID: 0}
     - target: {fileID: 4507709382455662499, guid: d4640e1e6bf409f44bcf4e2ec8faadb1, type: 3}
       propertyPath: crosshair
       value: 

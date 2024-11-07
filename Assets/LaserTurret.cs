@@ -29,15 +29,28 @@ public class LaserTurret : MonoBehaviour
         laserPoints.Clear();
         laserPoints.Add(barrelEnd.position);
 
-        if(Physics.Raycast(barrelEnd.position, barrelEnd.forward, out RaycastHit hit, 1000.0f, targetLayer))
-        {
-            laserPoints.Add(hit.point);
-        }
+        BounceLaser(barrelEnd.position, barrelEnd.forward);
 
         line.positionCount = laserPoints.Count;
         for(int i = 0; i < line.positionCount; i++)
         {
             line.SetPosition(i, laserPoints[i]);
+        }
+    }
+
+    void BounceLaser(Vector3 position, Vector3 direction)
+    {
+        if (Physics.Raycast(position, direction, out RaycastHit hit, 1000.0f, targetLayer))
+        {
+            Vector3 inverse = position + direction + (2f * hit.normal);
+            Vector3 bounceDir = inverse - position;
+
+            laserPoints.Add(hit.point);
+            BounceLaser(hit.point, bounceDir);
+        }
+        else
+        {
+            laserPoints.Add(position + direction * 100);
         }
     }
 

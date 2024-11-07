@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class ProjectileTurret : MonoBehaviour
 {
@@ -18,12 +20,6 @@ public class ProjectileTurret : MonoBehaviour
 
     List<Vector3> points = new List<Vector3>();
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
     // Update is called once per frame
     void Update()
     {
@@ -38,6 +34,7 @@ public class ProjectileTurret : MonoBehaviour
     void Fire()
     {
         GameObject projectile = Instantiate(projectilePrefab, barrelEnd.position, gun.transform.rotation);
+        Physics.gravity = gravity;
         projectile.GetComponent<Rigidbody>().velocity = projectileSpeed * barrelEnd.transform.forward;
     }
 
@@ -58,17 +55,24 @@ public class ProjectileTurret : MonoBehaviour
     {
         Vector3 directionToTarget = (crosshair.transform.position - turretBase.transform.position).normalized;
         Quaternion lookRotation = Quaternion.LookRotation(new Vector3(directionToTarget.x, 0, directionToTarget.z));
+
         turretBase.transform.rotation = Quaternion.Slerp(turretBase.transform.rotation, lookRotation, Time.deltaTime * baseTurnSpeed);
     }
 
     void RotateGun()
     {
-        float? angle = CalculateTrajectory(crosshair.transform.position, useLowAngle);
-        if (angle != null)
-            gun.transform.localEulerAngles = new Vector3(360f - (float)angle, 0, 0);
+        float? ver_angle = CalculateTrajectory(crosshair.transform.position, useLowAngle, gravity.magnitude);
+        /*float? hor_angle = CalculateTrajectory(crosshair.transform.position, useLowAngle, Mathf.Tan(gravity.x));*/
+
+        if (ver_angle != null)
+        {
+            gun.transform.localEulerAngles = new Vector3(360f - (float)ver_angle, 0);
+            PreviewTrajectory();
+        }
+            
     }
 
-    float? CalculateTrajectory(Vector3 target, bool useLow)
+    float? CalculateTrajectory(Vector3 target, bool useLow, float grav)
     {
         Vector3 targetDir = target - barrelEnd.position;
         
@@ -80,7 +84,7 @@ public class ProjectileTurret : MonoBehaviour
         float v = projectileSpeed;
         float v2 = Mathf.Pow(v, 2);
         float v4 = Mathf.Pow(v, 4);
-        float g = gravity.y;
+        float g = grav;
         float x2 = Mathf.Pow(x, 2);
 
         float underRoot = v4 - g * ((g * x2) + (2 * y * v2));
@@ -98,5 +102,32 @@ public class ProjectileTurret : MonoBehaviour
         }
         else
             return null;
+    }
+
+    void PreviewTrajectory()
+    {
+        points.Clear();
+        points.Add(barrelEnd.position);
+
+       
+        Vector3 velocity = projectileSpeed * barrelEnd.forward;
+        float increment = .02f;
+        for (float time = 0; time < 1f; time += increment)
+        {
+            Vector3 position = barrelEnd.position;
+            Vector3 displacement = (velocity * time ) + (1/2f * gravity * Mathf.Pow(time, 2));
+            position += displacement;
+            points.Add(position);
+
+            if (Physics.Raycast(position, displacement, out RaycastHit hit, projectileSpeed * increment * 3, targetLayer))
+                break;
+        }
+
+        line.positionCount = points.Count;
+        for (int i = 0; i < line.positionCount; i++)
+        {
+            line.SetPosition(i, points[i]);
+        }
+
     }
 }
