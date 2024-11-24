@@ -61,35 +61,15 @@ public class ProjectileTurret : MonoBehaviour
 
     void RotateGun()
     {
-        float? theta = CalculateTrajectory(crosshair.transform.position, useLowAngle, gravity.magnitude);
+        float? ver_angle = CalculateTrajectory(crosshair.transform.position, useLowAngle, gravity.magnitude);
+        /*float? hor_angle = CalculateTrajectory(crosshair.transform.position, useLowAngle, Mathf.Tan(gravity.x));*/
 
-        if (theta != null)
+        if (ver_angle != null)
         {
-            Vector3 normalGravity = gravity.normalized;
-            Matrix4x4 matrix = Matrix4x4.Rotate(Quaternion.LookRotation(gravity));
-            //Vector3 newDir = matrix.MultiplyVector() * -1;
-
-            /*Vector2 a = new Vector2(Mathf.Cos(theta.Value), Mathf.Sin(theta.Value));
-            Vector2 b = new Vector2(-Mathf.Sin(theta.Value), Mathf.Cos(theta.Value));
-
-            Vector2 dir = gravity.x * a + gravity.y * b;*/
-
-            Vector3 rotation = new Vector3(360 - theta.Value, 0, 0);
-
-            float absGrav = Mathf.Abs(Mathf.Sqrt(
-                (normalGravity.x*normalGravity.x) + 
-                (normalGravity.y*normalGravity.y) + 
-                (normalGravity.z*normalGravity.z)));
-            float absRot = Mathf.Abs(Mathf.Sqrt(
-                (rotation.x * rotation.x) +
-                (rotation.y * rotation.y) +
-                (rotation.z * rotation.z)));
-
-            float angleBetween = Mathf.Acos(Vector3.Dot(rotation, normalGravity) / absGrav * absRot);
-            //new Vector3(360 - theta.Value, 0, 0);
-            //gun.transform.localEulerAngles = dir;
+            gun.transform.localEulerAngles = new Vector3(360f - (float)ver_angle, 0);
             PreviewTrajectory();
         }
+            
     }
 
     float? CalculateTrajectory(Vector3 target, bool useLow, float grav)
